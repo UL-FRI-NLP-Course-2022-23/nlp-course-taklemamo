@@ -1,7 +1,7 @@
 # Natural language processing course 2022/23: `Put name of your project here`
 
 Team members:
- * `MEMBER FULL NAME`, `STUDENT ID`, `STUDENT E-MAIL`
+ * `Blaž Rolih`, `63190255`, `br9136@student.uni-lj.si`
  * `MEMBER FULL NAME`, `STUDENT ID`, `STUDENT E-MAIL`
  * `ŽIGA ROT`, `63220470`, `zr13891@student.uni-lj.si`
  
