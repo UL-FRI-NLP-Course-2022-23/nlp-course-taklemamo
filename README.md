@@ -11,4 +11,4 @@ Group public acronym/name: taklemamo
 The report can be found in folder `report`.
 
 The code is not runnable currently.
-A detailed description on environment setup will be added later.
+A detailed description on environment setup will be added later, when first results are obtained.
