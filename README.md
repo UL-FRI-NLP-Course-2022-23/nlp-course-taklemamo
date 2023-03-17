@@ -7,3 +7,8 @@ Team members:
  
 Group public acronym/name: taklemamo
  > This value will be used for publishing marks/scores. It will be known only to you and not you colleagues.
+
+The report can be found in folder `report`.
+
+The code is not runnable currently.
+A detailed description on environment setup will be added later.
