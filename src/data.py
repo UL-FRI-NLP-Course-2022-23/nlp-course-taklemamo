@@ -66,6 +66,6 @@ def preprocess(fpath):
 
 if __name__ == "__main__":
     #preprocess("data/en.txt")
-    dataset = ParaphraseDataset("data/test_data.csv", text_transform)
+    dataset = ParaphraseDataset("../data/test_data.csv", text_transform)
     print(dataset.__getitem__(0))
     print(dataset.vocab_size)

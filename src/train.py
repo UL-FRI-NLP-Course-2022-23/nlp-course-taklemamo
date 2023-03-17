@@ -21,7 +21,7 @@ n_layers = 2
 seq_len = max_len
 
 # data
-train_set = ParaphraseDataset("data/test_data.csv")
+train_set = ParaphraseDataset("../data/test_data.csv")
 loader = DataLoader(train_set, batch_size, shuffle=True)
 vocab_size = train_set.vocab_size
 
