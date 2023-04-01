@@ -2,9 +2,22 @@ from .base import PipelineBlock
 from urllib import request
 import json
 
-class SloNMTTranslateBlock(PipelineBlock):
+class SLONMTTranslateBlock(PipelineBlock):
+    """
+    Block for local slovene-english machine translation
+    Needs a running instance of the api
+    see: https://github.com/clarinsi/Slovene_NMT
+    """
 
     def __init__(self, src_lang, tgt_lang, api_url="http://localhost:4000/api/translate"):
+        """
+        args:
+            src_lang: str: source language, must be in SLONMTRequest.langs
+            tgt_lang: str: target language, must be in SLONMTRequest.langs
+                must not be the same as src_lang
+            api_url: str: url for machine translation api, see: https://github.com/clarinsi/Slovene_NMT
+        """
+        
         super().__init__()
         self.src_lang = src_lang
         self.tgt_lang = tgt_lang
@@ -22,7 +35,7 @@ class SloNMTTranslateBlock(PipelineBlock):
 
 
 class SLONMTRequest(request.Request):
-
+    
     langs = ["sl", "en"]
 
     def __init__(self, src_lang, tgt_lang, to_translate, api_url):

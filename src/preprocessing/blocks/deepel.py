@@ -2,8 +2,19 @@ from .base import PipelineBlock
 import deepl
 
 class DeepLTranslateBlock(PipelineBlock):
+    """
+    Block for translation with DeepL
+    """
     
     def __init__(self, api_key, out_lang, in_lang=None):
+        """
+        args:
+            api_key: str: api key from DeepL, see: https://www.deepl.com/account/summary
+            out_lang: str: see deepl.Translator.translate_text()
+            in_lang: str: see deepl.Translator.translate_text(),
+                if None it will be automatically detected by DeepL
+        """
+
         super().__init__()
         self.api_key = api_key
         self.out_lang = out_lang

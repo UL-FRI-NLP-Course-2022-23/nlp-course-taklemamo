@@ -1,24 +1,44 @@
 class PipeLine():
+    """
+    Sequential text processing pipeline
+    """
 
     def __init__(self, block_list):
+        """
+        args:
+            block_list: List[PipelineBlock]
+        returns:
+            None
+        """
         self.blocks = block_list
 
-    def __call__(self, paragraphs):
+    def __call__(self, text_list):
+        """
+        args:
+            text_list: List[str or None]
+        returns:
+            dataset: Dict("inputs": List[str], "targets:" List[str])
+                can be shorter in length than input since
+                any text that returns None on path is discarded
+        """
+
         dataset = {
-            "in": paragraphs,
-            "out": []
+            "inputs": [],
+            "targets": []
         }
 
-        for paragraph in paragraphs:
-            aug = paragraph
-            for block in self.block_list:
-                aug = block([aug])
+        for text in text_list:
+            aug = [text]
+            for block in self.blocks:
+                aug = block(aug)
                 if aug is None:
-                    # pop the paragraph and continue
+                    # don't add the paragraph to dataset
+                    # if some block returned None for it
                     break
             else:
                 # if the paragraph went through then it's ok
-                dataset["out"].extend(aug)
+                dataset["inputs"].extend(text)
+                dataset["targets"].extend(aug)
 
         return dataset
     
