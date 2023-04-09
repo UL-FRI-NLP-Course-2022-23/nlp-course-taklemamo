@@ -27,17 +27,18 @@ class PipeLine():
             "targets": []
         }
 
+        # this is pretty hacky - no need to iterate through text list since loader already loads in batches
         for text in text_list:
             aug = [text]
             for block in self.blocks:
                 aug = block(aug)
-                if aug is None:
+                if aug[0] is None:
                     # don't add the paragraph to dataset
                     # if some block returned None for it
                     break
             else:
                 # if the paragraph went through then it's ok
-                dataset["inputs"].extend(text)
+                dataset["inputs"].append(text)
                 dataset["targets"].extend(aug)
 
         return dataset

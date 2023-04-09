@@ -49,3 +49,9 @@ class FilterFunctions():
     
     def max_pass(text, max_chars):
         return text if len(text) <= max_chars else text[:max_chars]
+    
+    def min_words(text, min_words):
+        return text if len(text.split(" ")) >= min_words else None
+    
+    def max_words(text, max_words):
+        return text if len(text.split(" ")) <= max_words else None
