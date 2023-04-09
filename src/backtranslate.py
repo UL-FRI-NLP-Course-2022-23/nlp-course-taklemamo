@@ -6,8 +6,8 @@ import glob
 import os
 import csv
 
-GIGAFIDA_PATH = "/home/joze/Documents/sola/obdelava_naravnega_jezika/nlp-course-taklemamo/data/ccGigafida"
-OUT_PATH = "/home/joze/Documents/sola/obdelava_naravnega_jezika/nlp-course-taklemamo/data"
+GIGAFIDA_PATH = "" # change to ccGigaFidafolder
+OUT_PATH = "" # TODO: s config files al neki
 
 backtranslation_pipeline = PipeLine([
     B.FilterBlock(B.FilterFunctions.min_words, 10),
@@ -43,4 +43,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
