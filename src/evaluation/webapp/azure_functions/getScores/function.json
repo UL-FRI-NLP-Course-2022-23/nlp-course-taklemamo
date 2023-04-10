@@ -5,8 +5,10 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["post"],
-      "route": "todos"
+      "methods": [
+        "get"
+      ],
+      "route": "scores"
     },
     {
       "type": "http",

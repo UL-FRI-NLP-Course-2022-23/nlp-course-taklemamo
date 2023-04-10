@@ -1,7 +1,7 @@
-const todoService = require('../services/todo');
+const scoreService = require('../services/scoreService');
 
 module.exports = async function (context, req) {
     context.log('JavaScript HTTP trigger function processed a request.');
 
-    todoService.getTodos(context);
-};
+    await scoreService.getScores(context);
+}
