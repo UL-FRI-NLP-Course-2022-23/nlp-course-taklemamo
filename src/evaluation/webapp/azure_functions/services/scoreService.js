@@ -1,8 +1,8 @@
 const mongoose = require("mongoose")
 const db = require("../mongodb/db")
+const scorerService = require("./scorerService")
 
 const scoreSchema = require("../mongodb/score").scoreSchema
-
 const Score = mongoose.model("Score", scoreSchema)
 
 const getScores = async (context) => {
@@ -25,6 +25,15 @@ const getScores = async (context) => {
 
 const addScore = async (context, score) => {
     db.connectToDatabase();
+
+    if (!scorerService.scorerExists(score.scorerId)) {
+        context.res = {
+            status: 400,
+            body: "Error adding score. Scorer does not exist.",
+            headers: { "Access-Control-Allow-Origin": "*" }
+        };
+        return;
+    }
 
     const newScore = new Score(score)
     await newScore.save().then((score) => {
