@@ -28,19 +28,22 @@ const getText = async (context, id) => {
         if (text.length == 0) {
             context.res = {
                 status: 404,
-                body: "Text not found."
+                body: "Text not found.",
+                headers: { "Access-Control-Allow-Origin": "*" }
             };
         }
         else {
             context.res = {
                 status: 200,
-                body: text
+                body: text,
+                headers: { "Access-Control-Allow-Origin": "*" }
             };
         }
     }).catch((err) => { 
         context.res = {
             status: 400,
-            body: "Error getting text." + err
+            body: "Error getting text." + err,
+            headers: { "Access-Control-Allow-Origin": "*" }
         };
     });
 }

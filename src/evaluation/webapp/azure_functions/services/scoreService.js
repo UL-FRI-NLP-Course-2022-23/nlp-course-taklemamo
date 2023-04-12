@@ -2,7 +2,6 @@ const mongoose = require("mongoose")
 const db = require("../mongodb/db")
 
 const scoreSchema = require("../mongodb/score").scoreSchema
-const textSchema = require("../mongodb/text").textSchema
 
 const Score = mongoose.model("Score", scoreSchema)
 
@@ -12,12 +11,14 @@ const getScores = async (context) => {
     await Score.find().then((scores) => {
         context.res = {
             status: 200,
-            body: scores
+            body: scores,
+            headers: { "Access-Control-Allow-Origin": "*" }
         };
     }).catch((err) => { 
         context.res = {
             status: 400,
-            body: "Error getting scores." + err
+            body: "Error getting scores." + err,
+            headers: { "Access-Control-Allow-Origin": "*" }
         };
     });
 }
@@ -29,12 +30,14 @@ const addScore = async (context, score) => {
     await newScore.save().then((score) => {
         context.res = {
             status: 201,
-            body: score
+            body: score,
+            headers: { "Access-Control-Allow-Origin": "*" }
         };
     }).catch((err) => {
         context.res = {
             status: 400,
-            body: "Error adding score." + err
+            body: "Error adding score." + err,
+            headers: { "Access-Control-Allow-Origin": "*" }
         };
     });
 }
