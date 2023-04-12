@@ -5,7 +5,6 @@ const scoreSchema = require("../mongodb/score").scoreSchema
 const textSchema = require("../mongodb/text").textSchema
 
 const Score = mongoose.model("Score", scoreSchema)
-const Text = mongoose.model("Text", textSchema)
 
 const getScores = async (context) => {
     db.connectToDatabase();

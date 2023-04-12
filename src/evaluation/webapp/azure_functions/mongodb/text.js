@@ -1,6 +1,7 @@
 const mongoose = require("mongoose")
 
 const textSchema = new mongoose.Schema({
+    textId: String,
     originalText: String,
     paraphrasedText: String
 });
