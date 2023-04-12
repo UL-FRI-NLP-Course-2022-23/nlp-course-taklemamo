@@ -24,15 +24,14 @@ const addScorer = async (context, scorer) => {
     });
 }
 
-const scorerExists = async (scorerId) => {
+const scorerExists = async (id) => {
     db.connectToDatabase();
 
-    await Scorer.find({scorerId: scorerId}).then((scorer) => {
+    await Scorer.find({scorerId: id}).then((scorer) => {
         return scorer.length > 0;
     }).catch((err) => {
         return false;
     })    
-
 }
 
 module.exports = {

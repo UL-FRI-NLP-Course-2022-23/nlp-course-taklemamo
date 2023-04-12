@@ -24,9 +24,9 @@ const getScores = async (context) => {
 }
 
 const addScore = async (context, score) => {
-    const scorerExists = await scorerService.scorerExists(score.scorerId);
+    db.connectToDatabase();
 
-    if (!scorerExists) {
+    if (!scorerService.scorerExists(score.scorerId)) {
         context.res = {
             status: 400,
             body: "Error adding score. Scorer does not exist.",
@@ -34,8 +34,6 @@ const addScore = async (context, score) => {
         };
         return;
     }
-
-    db.connectToDatabase();
 
     const newScore = new Score(score)
     await newScore.save().then((score) => {
