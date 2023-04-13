@@ -33,13 +33,13 @@ class BibleScraper():
         num_chapters = len(soup.find(class_='bar-chapters').find_all('a'))
         chapt_refs = []
         for n in range(num_chapters):
-            chapt_refs.append(f"{book_ref} {n+1}")
+            chapt_refs.append(f"{n+1}")
 
         return chapt_refs
 
 
-    def get_verses(self, chapt_ref):
-        chapt_url = self.url + f"&m={chapt_ref}"
+    def get_verses(self, book_ref, chapt_ref):
+        chapt_url = self.url + f"&m={book_ref} {chapt_ref}"
         response = requests.get(chapt_url)
         soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -82,17 +82,24 @@ class BibleScraper():
 if __name__ == "__main__":
 
     import pprint
+    import json
 
     bs = BibleScraper()
     book_refs = bs.get_book_refs()[:5]
     chapt_refs = bs.get_chapt_refs(book_refs[0])[:5]
 
-    for bk in bs.get_book_refs()[:5]:
+    bible = {}
+    for bk in bs.get_book_refs()[:1]:
+        book = {}
         for ch in bs.get_chapt_refs(bk):
-            ps = bs.get_verses(ch)
-            print(ch)
-            print(ps)
-            # pprint.pprint(ps, indent=4)
+            ps = bs.get_verses(bk, ch)
+            book[ch] = ps
+        bible[bk] = book
+
+    pprint.pprint(bible, indent=4)
+
+    with open("../../data/bible_EN_SL.json", "w") as outfile:
+        json.dump(bible, outfile, indent=4)
 
 
 
