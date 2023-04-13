@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import re
 import string
+import unicodedata
 
 
 class BibleScraper():
@@ -37,11 +38,38 @@ class BibleScraper():
         return chapt_refs
 
 
+    def get_paragraphs(self, chapt_ref):
+        chapt_url = self.url + f"&m={chapt_ref}"
+        response = requests.get(chapt_url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        # Remove undesired elements
+        elements_to_remove = soup.find_all(['img', 'a'])
+        elements_to_remove += soup.find_all(class_='opomba-layer')
+        for r in elements_to_remove:
+            r.extract()
+
+        paragraphs = {}
+        for i, p in enumerate(soup.find_all(class_='p')):
+            text = unicodedata.normalize('NFKD', p.text).strip()
+            verses = re.findall(r'(\d+) (.+?)(?=\n\d+|$)', text, flags=re.DOTALL)
+            paragraphs[i] = dict(verses)
+
+        return paragraphs
+
 
 if __name__ == "__main__":
 
     bs = BibleScraper(lang='sl')
     book_refs = bs.get_book_refs()
-    res = bs.get_chapt_refs(book_refs[0])
+    chapt_refs = bs.get_chapt_refs(book_refs[0])
+    ps = bs.get_paragraphs(chapt_refs[3])
+
+    import pprint
+    pprint.pprint(ps, indent=4)
+
+
+
+
 
 
