@@ -44,6 +44,8 @@ class BibleScraper():
         soup = BeautifulSoup(response.content, 'html.parser')
 
         table = soup.select('table:has(.tr-odd)')[-1]
+        rows = table.find_all('tr')
+        rows[-1].decompose()
         verses = {}
         for row in table.find_all('tr'):
             vnum = None
@@ -51,12 +53,15 @@ class BibleScraper():
             en_verse = ''
             for lang, col in enumerate(row.find_all('td', class_='text')):
 
-                elements_to_keep = soup.find_all(class_=re.compile(r'^(p|v|q\d+)$'))
+                elements_to_keep = soup.find_all(class_=re.compile(r'^(p|nd|m|v|q\d*)$'))
                 for element in col.find_all():
                     if element not in elements_to_keep:
                         element.extract()
 
                 text = unicodedata.normalize('NFKD', col.text).strip()
+                if not text[0].isdigit():
+                    return None
+
                 vnum, verse = text.split(' ', 1)
                 vnum = int(vnum)
 
@@ -64,6 +69,9 @@ class BibleScraper():
                     en_verse = verse
                 else:
                     sl_verse = verse
+
+            if en_verse == '' or sl_verse == '':
+                return None
 
             if vnum is not None:
                 verses[vnum] = {'sl': sl_verse, 'en': en_verse}
@@ -73,13 +81,18 @@ class BibleScraper():
 
 if __name__ == "__main__":
 
-    bs = BibleScraper()
-    book_refs = bs.get_book_refs()
-    chapt_refs = bs.get_chapt_refs(book_refs[0])
-    ps = bs.get_verses(chapt_refs[0])
-
     import pprint
-    pprint.pprint(ps, indent=4)
+
+    bs = BibleScraper()
+    book_refs = bs.get_book_refs()[:5]
+    chapt_refs = bs.get_chapt_refs(book_refs[0])[:5]
+
+    for bk in bs.get_book_refs()[:5]:
+        for ch in bs.get_chapt_refs(bk):
+            ps = bs.get_verses(ch)
+            print(ch)
+            print(ps)
+            # pprint.pprint(ps, indent=4)
 
 
 
