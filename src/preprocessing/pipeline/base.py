@@ -33,13 +33,10 @@ class PipeLine():
             for block in self.blocks:
                 aug = block(aug)
                 if aug[0] is None:
-                    # don't add the paragraph to dataset
-                    # if some block returned None for it
                     break
-            else:
-                # if the paragraph went through then it's ok
-                dataset["inputs"].append(text)
-                dataset["targets"].extend(aug)
+            # if the paragraph went through then it's ok
+            dataset["inputs"].append(text)
+            dataset["targets"].extend(aug)
 
         return dataset
     
