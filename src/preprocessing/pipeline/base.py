@@ -17,26 +17,26 @@ class PipeLine():
         args:
             text_list: List[str or None]
         returns:
-            dataset: Dict("inputs": List[str], "targets:" List[str])
+            dataset: Dict("inputs": List[str], "outputs:" List[str])
                 can be shorter in length than input since
                 any text that returns None on path is discarded
         """
 
         dataset = {
             "inputs": [],
-            "targets": []
+            "outputs": []
         }
 
-        # this is pretty hacky - no need to iterate through text list since loader already loads in batches
+        # this is pretty hacky
         for text in text_list:
             aug = [text]
             for block in self.blocks:
-                aug = block(aug)
                 if aug[0] is None:
                     break
-            # if the paragraph went through then it's ok
+                aug = block(aug)
+
             dataset["inputs"].append(text)
-            dataset["targets"].extend(aug)
+            dataset["outputs"].extend(aug)
 
         return dataset
     
