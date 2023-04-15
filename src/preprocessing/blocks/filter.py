@@ -1,5 +1,5 @@
 from .base import PipelineBlock
-
+import re
 
 class FilterBlock(PipelineBlock):
     """
@@ -41,17 +41,30 @@ class FilterFunctions():
             text or None
     """
     
+    @staticmethod
     def max_chars(text, max_chars):
         return text if len(text) <= max_chars else None
     
+    @staticmethod
     def min_chars(text, min_chars):
         return text if len(text) >= min_chars else None
     
+    @staticmethod
     def max_pass(text, max_chars):
         return text if len(text) <= max_chars else text[:max_chars]
     
+    @staticmethod
     def min_words(text, min_words):
         return text if len(text.split(" ")) >= min_words else None
     
+    @staticmethod
     def max_words(text, max_words):
         return text if len(text.split(" ")) <= max_words else None
+    
+    @staticmethod
+    def regex_replace(text, pattern, replace):
+        return re.sub(pattern, replace, text)
+    
+    @classmethod
+    def regex_remove(cls, text, pattern):
+        return cls.regex_replace(text, pattern, "")
