@@ -50,7 +50,7 @@ class FilterFunctions():
         return text if len(text) >= min_chars else None
     
     @staticmethod
-    def max_pass(text, max_chars):
+    def max_chars_cut(text, max_chars):
         return text if len(text) <= max_chars else text[:max_chars]
     
     @staticmethod
@@ -60,6 +60,10 @@ class FilterFunctions():
     @staticmethod
     def max_words(text, max_words):
         return text if len(text.split(" ")) <= max_words else None
+    
+    @staticmethod
+    def max_words_cut(text, max_words):
+        return text if len(text.split(" ")) <= max_words else " ".join(text.split(" ")[:max_words])
     
     @staticmethod
     def regex_replace(text, pattern, replace):
