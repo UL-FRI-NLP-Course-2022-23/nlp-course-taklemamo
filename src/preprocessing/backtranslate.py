@@ -8,7 +8,7 @@ import os
 import csv
 
 
-GIGAFIDA_PATH = "F:/Python/nlp/ccGigafida" # change to ccGigaFidafolder
+GIGAFIDA_PATH = "data/ccGigafida" # change to ccGigaFidafolder
 OUT_PATH = "data/backtranslate" # TODO: s config files al neki
 GIGAFIDA_PATH = Path(GIGAFIDA_PATH)
 OUT_PATH = Path(OUT_PATH)
@@ -32,17 +32,18 @@ def main():
     dataset_out_path = OUT_PATH / "backtranslate.csv"
 
     if os.path.exists(loader_path):
+        print("Resuming from checkpoint")
         loader = GIGAFidaLoader.from_checkpoint(loader_path)
     else:
+        print("Starting backtranslation")
         os.makedirs(OUT_PATH, exist_ok=True)
         matcher = GIGAFIDA_PATH / "*"
         paths = sorted(glob.glob(str(matcher)))[:100] # remove [:100] for full GIGAFIDA
         loader = GIGAFidaLoader(paths, 10)
     
-    print("Starting backtranslation")
 
-    # utf-8 encoding is required due to funny chars
-    with open(dataset_out_path, "a", encoding="utf-8") as f:
+    # utf-8 encoding is required due to funny chars, newline="" is required to prevent double newlines on windows
+    with open(dataset_out_path, "a", encoding="utf-8", newline="") as f:
         writer = csv.writer(f, delimiter="\t")
 
         for text_list in loader:
