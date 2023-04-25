@@ -8,7 +8,7 @@ import os
 import csv
 
 
-GIGAFIDA_PATH = "data/ccGigafida" # change to ccGigaFidafolder
+GIGAFIDA_PATH = "F:/Python/nlp/ccGigafida" # change to ccGigaFidafolder
 OUT_PATH = "data/backtranslate" # TODO: s config files al neki
 GIGAFIDA_PATH = Path(GIGAFIDA_PATH)
 OUT_PATH = Path(OUT_PATH)
@@ -39,17 +39,29 @@ def main():
         paths = sorted(glob.glob(str(matcher)))[:100] # remove [:100] for full GIGAFIDA
         loader = GIGAFidaLoader(paths, 10)
     
-    for text_list in loader:
-        preprocessed = preprocess_pipeline(text_list)
-        dataset_chunk = backtranslation_pipeline(preprocessed["outputs"])
+    print("Starting backtranslation")
 
-        with open(dataset_out_path, "a") as f:
+    # utf-8 encoding is required due to funny chars
+    with open(dataset_out_path, "a", encoding="utf-8") as f:
+        writer = csv.writer(f, delimiter="\t")
+
+        for text_list in loader:
+            print("Backtranslating batch")
+            preprocessed = preprocess_pipeline(text_list)
+            dataset_chunk = backtranslation_pipeline(preprocessed["outputs"])
+
             for input, output in zip(dataset_chunk["inputs"], dataset_chunk["outputs"]):
                 if output is not None:
-                    writer = csv.writer(f, delimiter="\t")
-                    writer.writerow([input, output])
+                    try:
+                        writer.writerow([input, output])
+                    except Exception as e:
+                        # if writing to csv fails, skip this example
+                        print(f"Backtranslate failed  to write to csv: {e}")
+                        continue
         
-        loader.save_state(loader_path)
+            loader.save_state(loader_path)
+            # write to disk after each batch
+            f.flush()
 
 
 if __name__ == "__main__":
