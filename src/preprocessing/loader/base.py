@@ -18,6 +18,7 @@ class Loader():
             if not self.file_queue:
                 raise StopIteration
             path = self.file_queue.pop(0)
+            print(f"Loading file {path}")
             self.text_list = self.__load_file__(path)
         return self.text_list.pop(0)
     
