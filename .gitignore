@@ -132,3 +132,6 @@ dmypy.json
 .pyre/
 
 data/ccGigafida
+
+*/lightning_logs
+*/t5_paraphrase

@@ -9,9 +9,6 @@ import re
 from itertools import chain
 from string import punctuation
 
-import nltk
-from nltk.tokenize import sent_tokenize
-
 import pandas as pd
 import numpy as np
 import torch
