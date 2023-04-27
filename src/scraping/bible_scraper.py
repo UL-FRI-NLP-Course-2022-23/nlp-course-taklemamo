@@ -5,6 +5,7 @@ import string
 import unicodedata
 
 POETRY = ['Job', 'Ps', 'Prg', 'Prd', 'Vp', 'Žal']
+SKIP = ['2 Jn', '3 Jn']
 
 class BibleScraper():
 
@@ -56,7 +57,8 @@ class BibleScraper():
             en_verse = ''
             for lang, col in enumerate(row.find_all('td', class_='text')):
 
-                elements_to_keep = soup.find_all(class_=re.compile(r'^(p|mi|nd|m|v|q\d*)$'))
+                elements_to_keep = soup.find_all(class_=re.compile(r'^(p|mi|nd|m|v|qt|q\d*)$'))
+                elements_to_keep += soup.find_all('font')
                 for element in col.find_all():
                     if element not in elements_to_keep:
                         element.extract()
@@ -65,9 +67,14 @@ class BibleScraper():
                 if not text[0].isdigit():
                     return None
 
-                vnum, verse = text.split(' ', 1)
+                try:
+                    vnum, verse = text.split(' ', 1)
+                except ValueError:
+                    continue
+
                 if not vnum.isnumeric():
                     continue
+
                 vnum = int(vnum)
 
                 if lang:
@@ -94,6 +101,8 @@ if __name__ == "__main__":
     bible = {}
     for bk in bs.get_book_refs():
         book = {}
+        if bk in SKIP:
+            continue
         for ch in bs.get_chapt_refs(bk):
             ps = bs.get_verses(bk, ch)
             print(bk, ch)
