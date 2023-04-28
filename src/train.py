@@ -273,7 +273,7 @@ def main():
     print(args_dict)
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
-        dirpath=args.output_dir, filename="checkpoint.ckpt", monitor="val_loss", mode="min", save_top_k=5
+        dirpath=args.output_dir, filename="checkpoint.ckpt", monitor="val_loss", mode="min", save_top_k=1
     )
 
     train_params = dict(
@@ -298,10 +298,10 @@ def main():
 
     print("training finished")
 
-    # print ("Saving model")
-    # model.model.save_pretrained('t5_paraphrase')
-    #
-    # print ("Model saved")
+    print ("Saving model")
+    model.model.save_pretrained('t5_paraphrase')
+
+    print ("Model saved")
 
 
 if __name__ == "__main__":
