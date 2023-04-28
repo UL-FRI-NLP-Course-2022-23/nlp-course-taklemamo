@@ -1,26 +1,18 @@
 import argparse
-import glob
 import os
-import json
-import time
 import logging
 import random
-import re
-from itertools import chain
-from string import punctuation
 
 import pandas as pd
 import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
+from torch.optim import AdamW
 import pytorch_lightning as pl
 
 from transformers import (
-    AdamW,
     T5ForConditionalGeneration,
-    T5Tokenizer,
     AutoTokenizer,
-    AutoModelForSeq2SeqLM,
     get_linear_schedule_with_warmup
 )
 
@@ -40,9 +32,6 @@ class T5FineTuner(pl.LightningModule):
         self.save_hyperparameters(hparams)
 
         self.model = T5ForConditionalGeneration.from_pretrained(hparams.model_name_or_path)
-        # self.tokenizer = T5Tokenizer.from_pretrained(hparams.tokenizer_name_or_path)
-
-        # self.model = AutoModelForSeq2SeqLM(hparams.model_name_or_path)
         self.tokenizer = AutoTokenizer.from_pretrained(hparams.tokenizer_name_or_path)
 
         self.training_step_outputs = []
@@ -206,11 +195,11 @@ class ParaphraseDataset(Dataset):
 
             # tokenize inputs
             tokenized_inputs = self.tokenizer.batch_encode_plus(
-                [input_], max_length=self.max_len, pad_to_max_length=True, return_tensors="pt", truncation='longest_first'
+                [input_], max_length=self.max_len, padding="max_length", return_tensors="pt", truncation='longest_first'
             )
             # tokenize targets
             tokenized_targets = self.tokenizer.batch_encode_plus(
-                [target], max_length=self.max_len, pad_to_max_length=True, return_tensors="pt", truncation='longest_first'
+                [target], max_length=self.max_len, padding="max_length", return_tensors="pt", truncation='longest_first'
             )
 
             self.inputs.append(tokenized_inputs)
@@ -223,7 +212,6 @@ def get_dataset(tokenizer, type_path, args):
 
 def main():
     set_seed(42)
-    # tokenizer = AutoTokenizer.from_pretrained('cjvt/t5-sl-small')
 
     args_dict = dict(
         data_dir="",  # path for data files
@@ -243,26 +231,9 @@ def main():
         early_stop_callback=False,
         fp_16=False,  # if you want to enable 16-bit training then install apex and set this to true
         opt_level='O1',
-        # you can find out more on optimisation levels here https://nvidia.github.io/apex/amp.html#opt-levels-and-properties
         max_grad_norm=0.5,  # if you enable 16-bit training then set this to a sensible value, 0.5 is a good default
         seed=42,
     )
-
-    # train_path = "../data/backtranslate/backtranslate.csv"
-    # val_path = "../data/backtranslate/backtranslate.csv"
-
-    # train = pd.read_csv(train_path, sep="\t", header=None, names=["s1", "s2"]).astype(str)
-    # print(train.head())
-
-    # tokenizer = T5Tokenizer.from_pretrained('t5-large')
-    # logger = logging.getLogger(__name__)
-
-    # dataset = ParaphraseDataset(tokenizer, '../data/backtranslate', 'backtranslate', 256)
-    # print("Val dataset: ", len(dataset))
-    #
-    # data = dataset[61]
-    # print(tokenizer.decode(data['source_ids']))
-    # print(tokenizer.decode(data['target_ids']))
 
     if not os.path.exists('t5_paraphrase'):
         os.makedirs('t5_paraphrase')
@@ -270,7 +241,6 @@ def main():
     args_dict.update({'data_dir': '../data/backtranslate', 'output_dir': 't5_paraphrase', 'num_train_epochs': 10,
                       'max_seq_length': 256})
     args = argparse.Namespace(**args_dict)
-    print(args_dict)
 
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
         dirpath=args.output_dir, filename="checkpoint.ckpt", monitor="val_loss", mode="min", save_top_k=1
@@ -286,6 +256,7 @@ def main():
         gradient_clip_val=args.max_grad_norm,
         enable_checkpointing=checkpoint_callback,
         callbacks=[LoggingCallback()],
+        logger=False
     )
 
     print("Initialize model")
