@@ -1,3 +1,4 @@
+from matplotlib import pyplot as plt
 from parascore import ParaScorer
 from abc import ABC, abstractmethod
 
@@ -44,10 +45,11 @@ class ParaScoreMetric(Metric):
     def eval(self, original, paraphrase):
         diversity = self.diverse([paraphrase], [original])
         print("DS:", diversity)
-        similarity = self.scorer.score([paraphrase], [original])
+        # sim returned as: Prec, Recall, Fscore
+        similarity = self.scorer.score([paraphrase], [original])[2].item()
         print("SIM:", similarity)
 
-        out = [x + 0.5 * y for (x, y) in zip(similarity, diversity)]
+        out = [x + 0.5 * y for (x, y) in zip(similarity[2], diversity)]
         return out[0].item()
 
 
@@ -122,6 +124,40 @@ class ROUGEpMetric(Metric):
         return src_rouge_1 * nf * ff * lenpen
 
 
+class RoRoUGEMetric(Metric):
+    def __init__(self, model="EMBEDDIA/crosloengual-bert"):
+        super().__init__()
+        # in source code
+        self.scorer = ParaScorer(model_type=model, num_layers=8)
+
+    def edit(self, x, y):
+        a = len(x)
+        b = len(y)
+        dis = nltk.edit_distance(x, y)
+        return dis / max(a, b)
+
+    def diverse(self, cands, sources, peak, thresh):
+        diversity = []
+        for x, y in zip(cands, sources):
+            div = self.edit(x, y)
+            if div >= thresh:
+                ss = peak / 2 * (1 + cos(pi * (div - thresh) / (1 - thresh)))
+            elif div < thresh:
+                ss = -(1 + peak) / 2 * cos(-pi * div / thresh) - (1 - peak) / 2
+            diversity.append(ss)
+        return diversity
+
+    def eval(self, original, paraphrase):
+        # sim returned as: Prec, Recall, Fscore
+        similarity = self.scorer.score([paraphrase], [original])
+        print("SIM:", similarity[2].item())
+        diversity = self.diverse([paraphrase], [original], peak=(1 - similarity[2]), thresh=0.25)
+        print("DS:", diversity[0].item())
+
+        out = [x + y for (x, y) in zip(similarity[2], diversity)]
+        return out[0].item()
+
+
 if __name__ == "__main__":
     sentences = [
         "Policisti PU Ljubljana so bili v četrtek zvečer okoli 22.30 obveščeni o ropu v parku Tivoli v Ljubljani. Ugotovili so, da so štirje storilci pristopili do oškodovancev in od njih z nožem v roki zahtevali denar. Ko so jim denar izročili, so storilci s kraja zbežali. Povzročili so za okoli 350 evrov materialne škode.",
@@ -167,5 +203,12 @@ if __name__ == "__main__":
     #     print("Copy:", metric.eval(sen, sen))
     #     print("Unrelated:", metric.eval(sen, smet))
 
-    metric = ROUGEpMetric()
-    print(metric.eval(sentences * 4, paraps + sentences + refs + smeti))
+    # metric = ROUGEpMetric()
+    # print(metric.eval(sentences * 4, paraps + sentences + refs + smeti))
+
+    metric = RoRoUGEMetric()
+    for sen, par, smet, ref in zip(sentences, paraps, smeti, refs):
+        print("Para:", metric.eval(sen, par))
+        print("Copy:", metric.eval(sen, sen))
+        print("Hand:", metric.eval(sen, ref))
+        print("Unrelated:", metric.eval(sen, smet))
