@@ -46,6 +46,36 @@ class ParaScoreMetric(Metric):
         return out[0].item()
 
 
+class BLEUMetric(Metric):
+    def __init__(self):
+        super().__init__()
+        self.bleu = evaluate.load("bleu")
+
+    def eval(self, original, paraphrase):
+        res = self.bleu.compute(predictions=[paraphrase], references=[original])
+        return res["bleu"]
+
+
+class ROUGEMetric(Metric):
+    def __init__(self):
+        super().__init__()
+        self.rouge = evaluate.load("rouge")
+
+    def eval(self, original, paraphrase):
+        res = self.rouge.compute(predictions=[paraphrase], references=[original])
+        return res["rougeL"]
+
+
+class SacreBLEUMetric(Metric):
+    def __init__(self):
+        super().__init__()
+        self.sacrebleu = evaluate.load("sacrebleu")
+
+    def eval(self, original, paraphrase):
+        res = self.sacrebleu.compute(predictions=[paraphrase], references=[original])
+        return res["score"]
+
+
 if __name__ == "__main__":
     sentences = [
         "Policisti PU Ljubljana so bili v četrtek zvečer okoli 22.30 obveščeni o ropu v parku Tivoli v Ljubljani. Ugotovili so, da so štirje storilci pristopili do oškodovancev in od njih z nožem v roki zahtevali denar. Ko so jim denar izročili, so storilci s kraja zbežali. Povzročili so za okoli 350 evrov materialne škode.",
@@ -70,7 +100,10 @@ if __name__ == "__main__":
     #         pass
     #     print(m)
 
-    metric = ParaScoreMetric()
+    # metric = ParaScoreMetric()
+    # metric = BLEUMetric()
+    # metric = ROUGEMetric()
+    metric = SacreBLEUMetric()
 
     for sen, par, smet in zip(sentences, paraps, smeti):
         print("Para:", metric.eval(sen, par))
