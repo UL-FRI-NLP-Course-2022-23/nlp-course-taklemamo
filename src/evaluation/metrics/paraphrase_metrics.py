@@ -99,6 +99,7 @@ class ROUGEpMetric(Metric):
         self.gamma = gamma
 
     def eval(self, original, paraphrase):
+        # https://arxiv.org/pdf/2205.13119.pdf
         if type(original) is not list:
             raise "ROUGEp requires list of all paraphrase pairs"
         res = self.rouge.compute(predictions=paraphrase, references=original, use_aggregator=False)
@@ -111,8 +112,11 @@ class ROUGEpMetric(Metric):
         para_lens = np.array([len(s) for s in paraphrase])
 
         max_diff = np.maximum(src_rouge_l - bench_rouge, 0)
+        # novelty factor
         nf = (1 - (max_diff / (1 - bench_rouge)) ** self.beta)
+        # fluency factor
         ff = (1 - (max_diff / bench_rouge) ** self.gamma)
+        # prevent generating too long of paraphrase
         lenpen = np.minimum(1, np.exp(1 - para_lens / orig_lens))
 
         return src_rouge_1 * nf * ff * lenpen
