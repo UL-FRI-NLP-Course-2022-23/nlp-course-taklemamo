@@ -158,6 +158,15 @@ class RoRoUGEMetric(Metric):
         return out[0].item()
 
 
+class BERTScoreMetric(Metric):
+    def __init__(self, model="EMBEDDIA/crosloengual-bert"):
+        super().__init__()
+        self.scorer = ParaScorer(model_type=model, num_layers=8)
+
+    def eval(self, original, paraphrase):
+        return self.scorer.score([original], [paraphrase])[2].item()
+
+
 if __name__ == "__main__":
     sentences = [
         "Policisti PU Ljubljana so bili v četrtek zvečer okoli 22.30 obveščeni o ropu v parku Tivoli v Ljubljani. Ugotovili so, da so štirje storilci pristopili do oškodovancev in od njih z nožem v roki zahtevali denar. Ko so jim denar izročili, so storilci s kraja zbežali. Povzročili so za okoli 350 evrov materialne škode.",
@@ -192,23 +201,20 @@ if __name__ == "__main__":
     # metric = ROUGEMetric()
     # metric = SacreBLEUMetric()
     # metric = GoogleBLEUMetric()
-    # metric = RoRoScoreMetric()
+    # metric = RoRoUGEMetric()
+    metric = BERTScoreMetric()
+
 
     # print("Model: ", metric.eval(sentences[0], paraps[0]))
     # print("Hand: ", metric.eval(sentences[1], paraps[1]))
     # print("Copy: ", metric.eval(sentences[1], sentences[1]))
 
-    # for sen, par, smet in zip(sentences, paraps, smeti):
-    #     print("Para:", metric.eval(sen, par))
-    #     print("Copy:", metric.eval(sen, sen))
-    #     print("Unrelated:", metric.eval(sen, smet))
-
-    # metric = ROUGEpMetric()
-    # print(metric.eval(sentences * 4, paraps + sentences + refs + smeti))
-
-    metric = RoRoUGEMetric()
-    for sen, par, smet, ref in zip(sentences, paraps, smeti, refs):
+    for sen, par, ref, smet in zip(sentences, paraps, refs, smeti):
         print("Para:", metric.eval(sen, par))
         print("Copy:", metric.eval(sen, sen))
         print("Hand:", metric.eval(sen, ref))
         print("Unrelated:", metric.eval(sen, smet))
+
+    # metric = ROUGEpMetric()
+    # print(metric.eval(sentences * 4, paraps + sentences + refs + smeti))
+
