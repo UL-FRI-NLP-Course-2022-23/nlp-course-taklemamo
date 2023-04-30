@@ -10,8 +10,8 @@ import evaluate
 
 
 class Metric(ABC):
-    def __init__(self):
-        pass
+    def __init__(self, name):
+        self.name = name
 
     @abstractmethod
     def eval(self, original, paraphrase):
@@ -20,7 +20,7 @@ class Metric(ABC):
 
 class ParaScoreMetric(Metric):
     def __init__(self, model="EMBEDDIA/crosloengual-bert"):
-        super().__init__()
+        super().__init__("ParaScore")
         # in source code
         self.scorer = ParaScorer(model_type=model, num_layers=8)
 
@@ -42,68 +42,64 @@ class ParaScoreMetric(Metric):
             diversity.append(ss)
         return diversity
 
-    def eval(self, original, paraphrase):
-        diversity = self.diverse([paraphrase], [original])
-        print("DS:", diversity)
+    def eval(self, original, paraphrase) -> np.array:
+        diversity = np.array(self.diverse(paraphrase, original))
         # sim returned as: Prec, Recall, Fscore
-        similarity = self.scorer.score([paraphrase], [original])[2].item()
-        print("SIM:", similarity)
+        similarity = self.scorer.score(paraphrase, original)[2].cpu().numpy()
 
-        out = [x + 0.5 * y for (x, y) in zip(similarity[2], diversity)]
-        return out[0].item()
+        return similarity + 0.5 * diversity
 
 
 class BLEUMetric(Metric):
     def __init__(self):
-        super().__init__()
+        super().__init__("BLEU")
         self.bleu = evaluate.load("bleu")
 
-    def eval(self, original, paraphrase):
-        res = self.bleu.compute(predictions=[paraphrase], references=[original])
+    def eval(self, original, paraphrase) -> int:
+        res = self.bleu.compute(predictions=paraphrase, references=original)
         return res["bleu"]
 
 
 class ROUGEMetric(Metric):
     def __init__(self):
-        super().__init__()
+        super().__init__("ROUGE")
         self.rouge = evaluate.load("rouge")
 
-    def eval(self, original, paraphrase):
-        res = self.rouge.compute(predictions=[paraphrase], references=[original])
-        return res["rougeL"]
+    def eval(self, original, paraphrase) -> np.array:
+        res = self.rouge.compute(predictions=paraphrase, references=original, use_aggregator=False)
+        return np.array(res["rougeL"])
 
 
 class SacreBLEUMetric(Metric):
     def __init__(self):
-        super().__init__()
+        super().__init__("SacreBLEU")
         self.sacrebleu = evaluate.load("sacrebleu")
 
-    def eval(self, original, paraphrase):
-        res = self.sacrebleu.compute(predictions=[paraphrase], references=[original])
+    def eval(self, original, paraphrase) -> int:
+        res = self.sacrebleu.compute(predictions=paraphrase, references=original)
         return res["score"]
 
 
 class GoogleBLEUMetric(Metric):
     def __init__(self):
-        super().__init__()
+        super().__init__("GoogleBLEU")
         self.google_bleu = evaluate.load("google_bleu")
 
-    def eval(self, original, paraphrase):
-        res = self.google_bleu.compute(predictions=[paraphrase], references=[original])
+    def eval(self, original, paraphrase) -> int:
+        res = self.google_bleu.compute(predictions=paraphrase, references=[[s] for s in original])
         return res["google_bleu"]
 
 
 class ROUGEpMetric(Metric):
     def __init__(self, beta=2, gamma=7):
-        super().__init__()
+        super().__init__("ROUGEp")
         self.rouge = evaluate.load("rouge")
         self.beta = beta
         self.gamma = gamma
 
-    def eval(self, original, paraphrase):
+    def eval(self, original, paraphrase) -> np.array:
         # https://arxiv.org/pdf/2205.13119.pdf
-        if type(original) is not list:
-            raise "ROUGEp requires list of all paraphrase pairs"
+
         res = self.rouge.compute(predictions=paraphrase, references=original, use_aggregator=False)
 
         src_rouge_l = np.array(res["rougeL"])
@@ -113,11 +109,10 @@ class ROUGEpMetric(Metric):
         orig_lens = np.array([len(s) for s in original])
         para_lens = np.array([len(s) for s in paraphrase])
 
-        max_diff = np.maximum(src_rouge_l - bench_rouge, 0)
         # novelty factor
-        nf = (1 - (max_diff / (1 - bench_rouge)) ** self.beta)
+        nf = (1 - (np.maximum(src_rouge_l - bench_rouge + 1e-10, 0) / (1 - bench_rouge + 1e-10)) ** self.beta)
         # fluency factor
-        ff = (1 - (max_diff / bench_rouge) ** self.gamma)
+        ff = (1 - (np.maximum(bench_rouge - src_rouge_l, 0) / bench_rouge) ** self.gamma)
         # prevent generating too long of paraphrase
         lenpen = np.minimum(1, np.exp(1 - para_lens / orig_lens))
 
@@ -126,7 +121,7 @@ class ROUGEpMetric(Metric):
 
 class RoRoUGEMetric(Metric):
     def __init__(self, model="EMBEDDIA/crosloengual-bert"):
-        super().__init__()
+        super().__init__("RoRoUGE")
         # in source code
         self.scorer = ParaScorer(model_type=model, num_layers=8)
 
@@ -147,24 +142,22 @@ class RoRoUGEMetric(Metric):
             diversity.append(ss)
         return diversity
 
-    def eval(self, original, paraphrase):
+    def eval(self, original, paraphrase) -> np.array:
         # sim returned as: Prec, Recall, Fscore
-        similarity = self.scorer.score([paraphrase], [original])
-        print("SIM:", similarity[2].item())
-        diversity = self.diverse([paraphrase], [original], peak=(1 - similarity[2]), thresh=0.25)
-        print("DS:", diversity[0].item())
+        similarity = self.scorer.score(paraphrase, original)[2].cpu().numpy()
+        max_sim = np.max(similarity)
+        diversity = np.array(self.diverse(paraphrase, original, peak=(1 - max_sim), thresh=0.25))
 
-        out = [x + y for (x, y) in zip(similarity[2], diversity)]
-        return out[0].item()
+        return similarity + 0.5 * diversity
 
 
 class BERTScoreMetric(Metric):
     def __init__(self, model="EMBEDDIA/crosloengual-bert"):
-        super().__init__()
+        super().__init__("BERTScore")
         self.scorer = ParaScorer(model_type=model, num_layers=8)
 
-    def eval(self, original, paraphrase):
-        return self.scorer.score([original], [paraphrase])[2].item()
+    def eval(self, original, paraphrase) -> np.array:
+        return self.scorer.score(original, paraphrase)[2].cpu().numpy()
 
 
 if __name__ == "__main__":
@@ -188,33 +181,23 @@ if __name__ == "__main__":
     ]
 
     # models = ["cjvt/sleng-bert", "cjvt/sloberta-sleng", "cjvt/sloberta-si-nli", "cjvt/t5-sl-small", "EMBEDDIA/sloberta", "EMBEDDIA/crosloengual-bert"]
-    #
-    # for m in models:
-    #     try:
-    #         ps = ParaScore(m)
-    #     except:
-    #         pass
-    #     print(m)
 
-    # metric = ParaScoreMetric()
-    # metric = BLEUMetric()
-    # metric = ROUGEMetric()
-    # metric = SacreBLEUMetric()
-    # metric = GoogleBLEUMetric()
-    # metric = RoRoUGEMetric()
-    metric = BERTScoreMetric()
+    metrics = [
+        ParaScoreMetric(),
+        BLEUMetric(),
+        ROUGEMetric(),
+        SacreBLEUMetric(),
+        GoogleBLEUMetric(),
+        ROUGEpMetric(),
+        RoRoUGEMetric(),
+        BERTScoreMetric()
+    ]
 
-
-    # print("Model: ", metric.eval(sentences[0], paraps[0]))
-    # print("Hand: ", metric.eval(sentences[1], paraps[1]))
-    # print("Copy: ", metric.eval(sentences[1], sentences[1]))
-
-    for sen, par, ref, smet in zip(sentences, paraps, refs, smeti):
-        print("Para:", metric.eval(sen, par))
-        print("Copy:", metric.eval(sen, sen))
-        print("Hand:", metric.eval(sen, ref))
-        print("Unrelated:", metric.eval(sen, smet))
-
-    # metric = ROUGEpMetric()
-    # print(metric.eval(sentences * 4, paraps + sentences + refs + smeti))
+    for metric in metrics:
+        print("Name:", metric.name)
+        print("Para:", metric.eval(sentences, paraps))
+        print("Copy:", metric.eval(sentences, sentences))
+        print("Hand:", metric.eval(sentences, refs))
+        print("Unrelated:", metric.eval(sentences, smeti))
+        print()
 

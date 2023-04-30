@@ -19,6 +19,7 @@ model = model.to(device)
 
 
 sentence = "Policisti PU Ljubljana so bili v četrtek zvečer okoli 22.30 obveščeni o ropu v parku Tivoli v Ljubljani. Ugotovili so, da so štirje storilci pristopili do oškodovancev in od njih z nožem v roki zahtevali denar. Ko so jim denar izročili, so storilci s kraja zbežali. Povzročili so za okoli 350 evrov materialne škode."
+sentence = "Sobota se je začela z jasnim vremenom, soncu pa so se sredi dneva pogumno pridružili oblaki. Popoldan je Prekmurje zajelo hudo neurje z močnim dežjem in sodro. Ta je pobelila Lendavo z okolico. V prvem delu noči bo še možnih nekaj krajevnih padavin tudi v drugih delih države. "
 
 text = "paraphrase: " + sentence + " </s>"
 
