@@ -13,6 +13,7 @@ OUT_PATH = "data/backtranslate" # TODO: s config files al neki
 GIGAFIDA_PATH = Path(GIGAFIDA_PATH)
 OUT_PATH = Path(OUT_PATH)
 
+TEST_TRANS = True
 
 preprocess_pipeline = PipeLine([
     B.FilterBlock(B.FilterFunctions.regex_remove, '[\n\r\t]'),
@@ -28,6 +29,10 @@ backtranslation_pipeline = PipeLine([
 
 
 def main():
+    global OUT_PATH
+    if TEST_TRANS:
+        OUT_PATH = OUT_PATH / "testset"
+
     loader_path = OUT_PATH / "backtranslate_state.json"
     dataset_out_path = OUT_PATH / "backtranslate.csv"
 
@@ -38,7 +43,13 @@ def main():
         print("Starting backtranslation")
         os.makedirs(OUT_PATH, exist_ok=True)
         matcher = GIGAFIDA_PATH / "*"
-        paths = sorted(glob.glob(str(matcher)))[:100] # remove [:100] for full GIGAFIDA
+
+        if TEST_TRANS:
+            # test translations are from end side
+            paths = sorted(glob.glob(str(matcher)))[-20:]
+        else:
+            paths = sorted(glob.glob(str(matcher)))[:100] # remove [:100] for full GIGAFIDA
+
         loader = GIGAFidaLoader(paths, 10)
     
 
