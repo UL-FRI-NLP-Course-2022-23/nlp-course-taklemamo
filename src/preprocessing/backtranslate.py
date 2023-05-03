@@ -13,7 +13,7 @@ OUT_PATH = "data/backtranslate" # TODO: s config files al neki
 GIGAFIDA_PATH = Path(GIGAFIDA_PATH)
 OUT_PATH = Path(OUT_PATH)
 
-TEST_TRANS = True
+TEST_TRANS = False
 
 preprocess_pipeline = PipeLine([
     B.FilterBlock(B.FilterFunctions.regex_remove, '[\n\r\t]'),
@@ -48,7 +48,7 @@ def main():
             # test translations are from end side
             paths = sorted(glob.glob(str(matcher)))[-20:]
         else:
-            paths = sorted(glob.glob(str(matcher)))[:100] # remove [:100] for full GIGAFIDA
+            paths = sorted(glob.glob(str(matcher)))[100:200] # remove for full GIGAFIDA
 
         loader = GIGAFidaLoader(paths, 10)
     
