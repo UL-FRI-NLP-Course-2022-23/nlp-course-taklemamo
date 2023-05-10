@@ -6,7 +6,7 @@ import random
 import pandas as pd
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset, DataLoader, random_split
 from torch.optim import AdamW
 import pytorch_lightning as pl
 
@@ -189,9 +189,7 @@ class ParaphraseDataset(Dataset):
     def _build(self):
         for idx in range(len(self.data)):
             input_, target = self.data.loc[idx, self.source_column], self.data.loc[idx, self.target_column]
-
-            input_ = "paraphrase: "+ input_ + ' </s>'
-            target = target + " </s>"
+            input_ = "paraphrase: "+ input_
 
             # tokenize inputs
             tokenized_inputs = self.tokenizer.batch_encode_plus(
@@ -238,7 +236,7 @@ def main():
     if not os.path.exists('t5_paraphrase'):
         os.makedirs('t5_paraphrase')
 
-    args_dict.update({'data_dir': '../data/backtranslate', 'output_dir': 't5_paraphrase', 'num_train_epochs': 10,
+    args_dict.update({'data_dir': '../../../data/backtranslate', 'output_dir': 't5_paraphrase', 'num_train_epochs': 10,
                       'max_seq_length': 256})
     args = argparse.Namespace(**args_dict)
 
