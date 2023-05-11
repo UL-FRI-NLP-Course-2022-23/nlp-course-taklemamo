@@ -18,7 +18,7 @@ TEST_TRANS = False
 preprocess_pipeline = PipeLine([
     B.FilterBlock(B.FilterFunctions.regex_remove, '[\n\r\t]'),
     B.FilterBlock(B.FilterFunctions.regex_replace, '[\u00bb\u00ab]', '"'), # replace >><< quotes with ""
-    B.FilterBlock(B.FilterFunctions.min_words, 30),
+    B.FilterBlock(B.FilterFunctions.min_words, 10),
     B.FilterBlock(B.FilterFunctions.max_words_cut, 150),
 ])
 
@@ -48,7 +48,7 @@ def main():
             # test translations are from end side
             paths = sorted(glob.glob(str(matcher)))[-20:]
         else:
-            paths = sorted(glob.glob(str(matcher)))[100:200] # remove for full GIGAFIDA
+            paths = sorted(glob.glob(str(matcher)))[200:2000] # remove for full GIGAFIDA
 
         loader = GIGAFidaLoader(paths, 10)
     
