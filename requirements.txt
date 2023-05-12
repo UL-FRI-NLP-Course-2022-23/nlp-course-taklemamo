@@ -91,3 +91,5 @@ nltk
 rouge_score
 evaluate
 sacrebleu
+scipy
+scikit-learn
