@@ -19,10 +19,11 @@ class Metric(ABC):
 
 
 class ParaScoreMetric(Metric):
-    def __init__(self, model="EMBEDDIA/crosloengual-bert"):
+    def __init__(self, model="EMBEDDIA/crosloengual-bert", alpha=0.5):
         super().__init__("ParaScore")
         # in source code
         self.scorer = ParaScorer(model_type=model, num_layers=8)
+        self.alpha = alpha
 
     def edit(self, x, y):
         a = len(x)
@@ -47,7 +48,7 @@ class ParaScoreMetric(Metric):
         # sim returned as: Prec, Recall, Fscore
         similarity = self.scorer.score(paraphrase, original)[2].cpu().numpy()
 
-        return similarity + 0.5 * diversity
+        return similarity + self.alpha * diversity
 
 
 class BLEUMetric(Metric):
@@ -163,11 +164,11 @@ class BERTScoreMetric(Metric):
 if __name__ == "__main__":
     sentences = [
         "Policisti PU Ljubljana so bili v četrtek zvečer okoli 22.30 obveščeni o ropu v parku Tivoli v Ljubljani. Ugotovili so, da so štirje storilci pristopili do oškodovancev in od njih z nožem v roki zahtevali denar. Ko so jim denar izročili, so storilci s kraja zbežali. Povzročili so za okoli 350 evrov materialne škode.",
-        "Sobota se je začela z jasnim vremenom, soncu pa so se sredi dneva pogumno pridružili oblaki. Popoldan je Prekmurje zajelo hudo neurje z močnim dežjem in sodro. Ta je pobelila Lendavo z okolico. V prvem delu noči bo še možnih nekaj krajevnih padavin tudi v drugih delih države. "
+        # "Sobota se je začela z jasnim vremenom, soncu pa so se sredi dneva pogumno pridružili oblaki. Popoldan je Prekmurje zajelo hudo neurje z močnim dežjem in sodro. Ta je pobelila Lendavo z okolico. V prvem delu noči bo še možnih nekaj krajevnih padavin tudi v drugih delih države. "
     ]
     paraps = [
         "Policisti Policijske uprave Ljubljana so v četrtek popoldne okoli 22.30 obvestili o ropu v parku Tivoli v Ljubljani, ugotovili so, da so štirje storilci pristopili k oškodovancem in od njih zahtevali denar z nožem v roki. Ko so jim denar izročil, so storilci s kraja pobegnili. Povzročili so približno 350 evrov materialne škode.",
-        "Sobota se je začel z jasnim vremenom, v večernih urah pa so se soncu v glavnem pridružili oblaki. Popoldan, Murska Sobota je prizadelo hudo neurje s hudo dežjem in jedro, ki je streslo Lendavo z okolico. V prvem delu noči bo nekaj krajevnih padavin tudi v drugih delih države."
+        # "Sobota se je začel z jasnim vremenom, v večernih urah pa so se soncu v glavnem pridružili oblaki. Popoldan, Murska Sobota je prizadelo hudo neurje s hudo dežjem in jedro, ki je streslo Lendavo z okolico. V prvem delu noči bo nekaj krajevnih padavin tudi v drugih delih države."
     ]
 
     smeti = [
@@ -184,12 +185,12 @@ if __name__ == "__main__":
 
     metrics = [
         ParaScoreMetric(),
-        BLEUMetric(),
+        # BLEUMetric(),
         ROUGEMetric(),
-        SacreBLEUMetric(),
-        GoogleBLEUMetric(),
+        # SacreBLEUMetric(),
+        # GoogleBLEUMetric(),
         ROUGEpMetric(),
-        RoRoUGEMetric(),
+        # RoRoUGEMetric(),
         BERTScoreMetric()
     ]
 
@@ -197,7 +198,7 @@ if __name__ == "__main__":
         print("Name:", metric.name)
         print("Para:", metric.eval(sentences, paraps))
         print("Copy:", metric.eval(sentences, sentences))
-        print("Hand:", metric.eval(sentences, refs))
-        print("Unrelated:", metric.eval(sentences, smeti))
+        # print("Hand:", metric.eval(sentences, refs))
+        # print("Unrelated:", metric.eval(sentences, smeti))
         print()
 
