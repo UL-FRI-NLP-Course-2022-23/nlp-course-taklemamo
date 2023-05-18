@@ -10,7 +10,8 @@ def main():
 
     sentences = []
     paraps = []
-    th = 0.5
+    th_low = 0.4
+    th_high = 0.75
     
     df = pd.read_csv(readpath, header=None, sep='\t', names=['s', 'p'])
 
@@ -26,7 +27,7 @@ def main():
     print("Avg: ", avg_scores)
     print("Std: ", std_scores)
 
-    keep_ix = np.nonzero(scores > avg_scores)[0]
+    keep_ix = np.nonzero((scores > th_low) & (scores < th_high))[0]
 
     sentences = [sentences[i] for i in keep_ix]
     paraps = [paraps[i] for i in keep_ix]
