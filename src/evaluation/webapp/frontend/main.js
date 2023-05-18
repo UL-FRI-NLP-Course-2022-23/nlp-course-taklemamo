@@ -2,7 +2,7 @@ let i = -1;
 
 async function setText() {
     // next text is id + num
-    const text = await getText("uskladitev-" + i)
+    const text = await getText("naduskladitev-" + i)
     document.getElementById("text_original").innerHTML = text.originalText
     document.getElementById("text_par").innerHTML = text.paraphrasedText
     document.getElementById("text_id").innerHTML = text.textId
