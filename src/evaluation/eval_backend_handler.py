@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import requests
 
 import pandas as pd
+import numpy as np
 
 
 TEXT_URL = "https://nlpprojtest.azurewebsites.net/api/text?code=deOJXHOXVtNr2Udl029XrFsDeZRexC2KVyMvpQr-JJK8AzFuiwmqEA%3D%3D"
@@ -93,6 +94,23 @@ def get_score_pd():
     return df
 
 
+def upload_random_text(n=10):
+    datadir = "data/backtranslate/"
+    readpath = datadir + "backtranslate_filtered.csv"
+
+    df = pd.read_csv(readpath, header=None, sep='\t', names=['s', 'p'])
+    df = df[df['s'].str.len() < 200]
+
+    sentences = df['s'].tolist()
+    paraps = df['p'].tolist()
+
+    rnd = np.random.choice(len(sentences), n, replace=False)
+    id = "uskladitev"
+    for i, rnd_index in enumerate(rnd):
+        upload_text(f"{id}-{i}", sentences[rnd_index], paraps[rnd_index])
+
+
 if __name__ == "__main__":
     # upload_text("test_py5", "original", "para")
-    print(get_score_pd())
+    # print(get_score_pd())
+    upload_random_text()
