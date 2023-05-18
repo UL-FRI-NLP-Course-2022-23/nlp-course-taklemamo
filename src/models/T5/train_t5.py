@@ -40,8 +40,8 @@ class ParaDataset(Dataset):
 
 
 def main():
-	output_dir = "/d/hpc/projects/FRI/DL/gs1121/NLP/"
-	dataset_path = "../../../data/backtranslate/backtranslate.csv"
+	output_dir = "/d/hpc/projects/FRI/DL/gs1121/NLP/t5"
+	dataset_path = "../../../data/backtranslate/backtranslate_filtered.csv"
 
 	# checkpoint = "cjvt/t5-sl-small"
 	checkpoint = "cjvt/t5-sl-large"

@@ -9,6 +9,4 @@
 #SBARCH --cpus-per-task=4
 #SBATCH --mem-per-gpu=32G
 
-source ~/miniconda3/etc/profile.d/conda.sh # intialize conda
-conda activate nlp
 srun python ./train_t5.py
