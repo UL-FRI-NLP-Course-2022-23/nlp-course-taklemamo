@@ -88,7 +88,6 @@ def main():
 	)
 
 	trainer.train()
-	trainer.save_mode(output_dir + "best_model.ckpt")
 	
 
 

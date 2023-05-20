@@ -4,9 +4,12 @@ from transformers import T5ForConditionalGeneration, T5Tokenizer
 import argparse
 
 
-best_model_path = "./t5_paraphrase"
+model_size = "large"
+SEED = 1337
+
+best_model_path = "/d/hpc/projects/FRI/DL/gs1121/NLP/t5/checkpoint-24688/"
 model = T5ForConditionalGeneration.from_pretrained(best_model_path)
-tokenizer = T5Tokenizer.from_pretrained('cjvt/t5-sl-small')
+tokenizer = T5Tokenizer.from_pretrained(f'cjvt/t5-sl-{model_size}')
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print("device:", device)
@@ -14,8 +17,9 @@ model = model.to(device)
 
 
 def inference(sentence, num_paraphrases):
-    text = "paraphrase: " + sentence
-    max_len = 256
+    # text = "paraphrase: " + sentence
+    text = "parafraziraj: " + sentence
+    max_len = 512
 
     encoding = tokenizer.encode_plus(text, max_length=max_len, padding="max_length", return_tensors="pt")
     input_ids, attention_masks = encoding["input_ids"].to(device), encoding["attention_mask"].to(device)
@@ -24,7 +28,7 @@ def inference(sentence, num_paraphrases):
     beam_outputs = model.generate(
         input_ids=input_ids, attention_mask=attention_masks,
         do_sample=True,
-        max_length=256,
+        max_length=max_len,
         top_k=120,
         top_p=0.98,
         early_stopping=True,
@@ -58,7 +62,7 @@ if __name__ == "__main__":
 
     def set_seed(seed):
         torch.manual_seed(seed)
-    set_seed(1337)
+    set_seed(SEED)
  
     sentence = args.text
     print("\nOriginal sentence:")
