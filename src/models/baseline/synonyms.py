@@ -1,11 +1,13 @@
 import xml.etree.ElementTree as ET
+import random
 import classla
 classla.download(lang="sl")
 
 
 class SynonymParaphraser():
 
-    def __init__(self, synonyms_path):
+    def __init__(self, synonyms_path, to_replace=["NOUN", "VERB", "ADJ"]):
+        self.to_replace = to_replace
         self.nlp = classla.Pipeline("sl", processors="tokenize,pos,lemma")
         self.syns = self.load_synonyms(synonyms_path)
         
@@ -22,14 +24,17 @@ class SynonymParaphraser():
         out = ""
         for sentence in parsed_para:
             for word in sentence[0]:
-                if word["upos"] == "NOUN" and word["lemma"] in self.syns:
-                    alts = self.syns[word["lemma"]]
-                    out += alts[0]
+                if word["upos"] in self.to_replace and word["lemma"] in self.syns:
+                    syns = self.syns[word["lemma"]]
+                    w = random.choice(syns)
                 else:
-                    no_gaps = [".", "!", "?",]
-                    if word["text"] not in no_gaps:
-                        out += " " 
-                    out += word["text"]
+                    w = word["text"]
+                
+                # scuffed ahh hell
+                no_gaps = [".", "!", "?", ",", '"']
+                if word["text"] not in no_gaps:
+                    out += " "
+                out += w
         return out
 
     @staticmethod
