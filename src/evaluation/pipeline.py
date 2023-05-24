@@ -35,8 +35,8 @@ class EvaluationPipeline():
         df = pd.DataFrame(self.results)
         df.to_csv(save_path, sep="\t", **pd_to_csv_kws)
 
-    def result_stats(self):
-        assert self.results is not None, "Run evaluation before plotting!"
+    def results_stats(self):
+        assert self.results is not None, "Run evaluation before calculating stats!"
         return {
             metric.name: {
                 "mean": np.mean(self.results[metric.name]), 
