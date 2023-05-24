@@ -4,9 +4,6 @@ import pandas as pd
 import argparse
 import os
 
-#TEST_PATH = "../../../data/backtranslate/testset/backtranslate.csv"
-#OUT_PATH = "./"
-#SYNONYMS_PATH = "../../../../CJVT_Thesaurus-v1.0/CJVT_Thesaurus-v1.0.xml"
 
 def parse_args():
     parser = argparse.ArgumentParser("Baseline paraphraser.")

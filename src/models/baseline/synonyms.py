@@ -1,21 +1,25 @@
 import xml.etree.ElementTree as ET
 import random
 import classla
-classla.download(lang="sl")
 
 
 class SynonymParaphraser():
 
     def __init__(self, synonyms_path, to_replace=["NOUN", "VERB", "ADJ"]):
+        """
+        get synonyms file (.xml) from:
+        https://www.clarin.si/repository/xmlui/handle/11356/1166?locale-attribute=sl
+        """
+        classla.download(lang="sl")
         self.to_replace = to_replace
         self.nlp = classla.Pipeline("sl", processors="tokenize,pos,lemma")
         self.syns = self.load_synonyms(synonyms_path)
         
-    def generate(self, paragraphs):
-        paraphrased = []
-        for paragraph in paragraphs:
-            paraphrased.append(self.replace(paragraph))
-        return paraphrased
+    def generate(self, text_list):
+        para = []
+        for text in text_list:
+            para.append(self.replace(text))
+        return para
 
     def replace(self, text):
         doc = self.nlp(text)
