@@ -55,7 +55,7 @@ class EvaluationPipeline():
         
 
 if __name__ == "__main__":
-    #model = SynonymInferencer("../models/baseline/CVJT_Thesaurus-v1.0/CVJT_Thesaurus-v1.0.xml")
+    #model = SynonymInferencer("../models/baseline/CJVT_Thesaurus-v1.0/CJVT_Thesaurus-v1.0.xml")
     model = T5Inferencer("../models/T5/smeT5ar", "small")
     metrics = [ParaScoreMetric(), ROUGEMetric(), ROUGEpMetric(), BERTScoreMetric()]
 
@@ -65,8 +65,8 @@ if __name__ == "__main__":
         )
     
     ev = EvaluationPipeline(model, metrics, verbose=True)
-    ev.run_evaluation(test_set["sentence"].iloc[:10].to_list())
+    ev.run_evaluation(test_set["sentence"].to_list()[:42])
     ev.to_csv("./test.csv")
-    print(ev.result_stats())
+    print(ev.results_stats())
     ev.plot_results()
     plt.savefig("test.pdf", bbox_inches="tight")
