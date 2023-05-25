@@ -48,6 +48,10 @@ We have Fine-tuned two T5 models for paraphrasing sentences in slovene. Both mod
 - https://huggingface.co/GregaSustar/ParaPlegiq-small
 - https://huggingface.co/GregaSustar/ParaPlegiq-large
 
+***We Strongly recommend running the models on a Cluster as they Require a lot of VRAM.*** 
+
+***If you are running the models on a cluster we recommend that you first empty your '.cache/huggingface/hub' folder***
+
 ---
 ```
 # Move into the evaluation directory
@@ -126,7 +130,4 @@ squeue --me
 
 # The ouput will be redirected to evaluate.out
 ```
-
-***We Strongly recommend running the models on a Cluster as they Require a lot of VRAM***
-
 
