@@ -16,7 +16,7 @@ The report can be found in folder `report`.
 ### 1. Create new conda environment (optional)
 ```
 # Setup new conda environment
-conda create --name taklemamo
+conda create --name taklemamo python=3.8
 
 # Activate environment
 conda activate taklemamo
