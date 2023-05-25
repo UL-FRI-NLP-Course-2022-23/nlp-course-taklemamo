@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+import argparse
 
 class EvaluationPipeline():
     
@@ -54,19 +55,60 @@ class EvaluationPipeline():
         return axs
         
 
-if __name__ == "__main__":
-    #model = SynonymInferencer("../models/baseline/CJVT_Thesaurus-v1.0/CJVT_Thesaurus-v1.0.xml")
-    model = T5Inferencer("../models/T5/smeT5ar", "small")
-    metrics = [ParaScoreMetric(), ROUGEMetric(), ROUGEpMetric(), BERTScoreMetric()]
+def parse_args():
+    parser = argparse.ArgumentParser("Paraphrase inference")
+    parser.add_argument(
+        "--model", required=False, default="small", choices=["small", "large", "baseline"], type=str,
+    )
+    parser.add_argument(
+        "--model_path", required=False, type=str,
+    )
+    parser.add_argument(
+        "--thesaurus_path", required=False, default="./CJVT_Thesaurus-v1.0.xml", type=str
+    )
+    parser.add_argument(
+        "--run_on_testset", action="store_true", help="Run on testset.",
+    )
+    parser.add_argument(
+        "--text", required=False, default="Policisti PU Ljubljana so bili v četrtek zvečer okoli 22.30 obveščeni o ropu v parku Tivoli v Ljubljani. Ugotovili so, da so štirje storilci pristopili do oškodovancev in od njih z nožem v roki zahtevali denar. Ko so jim denar izročili, so storilci s kraja zbežali. Povzročili so za okoli 350 evrov materialne škode.",
+        help="Text to paraphrase.", type=str
+    )
+    return parser.parse_args()
 
-    test_set = pd.read_csv(
-        "../../data/backtranslate/testset/backtranslate.csv", 
-        sep="\t", names=["sentence", "paraphrase"]
-        )
+
+if __name__ == "__main__":
+    # model_path = "/d/hpc/projects/FRI/DL/gs1121/NLP/t5/ParaPlegiq-small"
+    # thesaurus_path = "/d/hpc/projects/FRI/DL/gs1121/NLP/CJVT_Thesaurus-v1.0/CJVT_Thesaurus-v1.0.xml"
+    args = parse_args()
+
+    if args.model_path:
+        model_path = args.model_path
+    else:
+        model_path = f"GregaSustar/ParaPlegiq-{args.model}"
+
+
+    if args.model == "baseline":
+        model = SynonymInferencer(args.thesaurus_path)
+    else:
+        model = T5Inferencer(model_path, args.model) 
+
+
+    if args.run_on_testset:
+        test_set = pd.read_csv(
+            "../../data/backtranslate/testset/backtranslate.csv", 
+            sep="\t", names=["sentence", "paraphrase"]
+            )
     
-    ev = EvaluationPipeline(model, metrics, verbose=True)
-    ev.run_evaluation(test_set["sentence"].to_list()[:42])
-    ev.to_csv("./test.csv")
-    print(ev.results_stats())
-    ev.plot_results()
-    plt.savefig("test.pdf", bbox_inches="tight")
+        metrics = [ParaScoreMetric(), ROUGEMetric(), ROUGEpMetric(), BERTScoreMetric()]
+        ev = EvaluationPipeline(model, metrics, verbose=True)
+        ev.run_evaluation(test_set["sentence"].to_list())
+        ev.to_csv(f"./ParaPlegiq-{args.model}_results.csv")
+        print(ev.results_stats())
+        ev.plot_results()
+        plt.savefig(f"./ParaPlegiq-{args.model}_results.pdf", bbox_inches="tight")
+    else:
+        sentence = args.text
+        print("\nOriginal sentence:")
+        print(sentence)
+        print("Paraphrased sentence:")
+        print(model._generate_single(sentence))
