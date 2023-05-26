@@ -38,6 +38,9 @@ cd nlp-course-taklemamo/
 # Manually install pytorch for CUDA if you don't have it already
 conda install pytorch pytorch-cuda=11.7 -c pytorch -c nvidia
 
+# Manually install classla
+pip install classla
+
 # Install required packages
 pip install -r requirements.txt
 ```
