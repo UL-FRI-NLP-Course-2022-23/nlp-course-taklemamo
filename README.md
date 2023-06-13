@@ -10,6 +10,30 @@ Group public acronym/name: taklemamo
 
 The report can be found in folder `report`.
 
+---
+
+## Models
+
+Fine-tuned T5 models for paraphrasing sentences in Slovene can be accessed thorugh the HuggingFace Hub:
+
+- [T5 small](https://huggingface.co/GregaSustar/ParaPlegiq-small)
+- [T5 large](https://huggingface.co/GregaSustar/ParaPlegiq-large)
+
+Check [How to run the models](#how-to-run-the-models) for execution.
+
+## Datasets
+
+Our main dataset consists of backtranslated ccGigafida. Following are subset used for various parts:
+
+- [Base trainset](./data/backtranslate/backtranslate.csv)
+- [T5 large filtered trainset](./data/backtranslate/backtranslate_filtered.csv)
+- [T5 small filtered trainset](./data/backtranslate/backtranslate_filtered_for_t5small.csv)
+- [Testset](./data/backtranslate/testset/backtranslate.csv)
+- [Human evalset](./data/backtranslate/evalset/eval.csv)
+- [Transalted Bible (not used)](./data/bible/bible.csv)
+
+---
+
 ## How to setup the environment
 ---
 
@@ -46,16 +70,11 @@ pip install -r requirements.txt
 ```
 
 ## How to run the models
----
-We have Fine-tuned two T5 models for paraphrasing sentences in slovene. Both models can be accessed thorugh the HuggingFace Hub.
-- https://huggingface.co/GregaSustar/ParaPlegiq-small
-- https://huggingface.co/GregaSustar/ParaPlegiq-large
 
 ***We Strongly recommend running the models on a Cluster as they Require a lot of VRAM.*** 
 
 ***If you are running the models on a cluster we recommend that you first empty your '.cache/huggingface/hub' folder***
 
----
 ```
 # Move into the evaluation directory
 cd src/evaluation/
